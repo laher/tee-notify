@@ -11,7 +11,8 @@ import (
 )
 
 var appName = flag.String("name", "tee-notify", "name of the app")
-var search = flag.String("search", "restarted", "string to search for")
+var search = flag.String("search", "restarted", "string to search for + trigger notification")
+var lineNumbers = flag.Bool("number", false, "include line numbers in output")
 
 // extend because ...
 const maxCapacity = 64 * 1000 * 2
@@ -42,8 +43,11 @@ func scan() error {
 	i := 0
 	for scanner.Scan() {
 		txt := scanner.Text()
-		fmt.Println(i, txt)
-		i++
+		if *lineNumbers {
+			fmt.Print(i, " ")
+			i++
+		}
+		fmt.Println(txt)
 		if strings.Contains(txt, *search) {
 			fmt.Println("---- Sending notification ---")
 			err := beeep.Notify(*appName, *appName+" restarted", "")
